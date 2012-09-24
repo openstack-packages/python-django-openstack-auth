@@ -2,7 +2,7 @@
 
 Name:           python-django-openstack-auth
 Version:        1.0.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Django authentication backend for OpenStack Keystone 
 
 License:        BSD
@@ -14,9 +14,15 @@ BuildRequires:  python2-devel
 BuildRequires:  python-sphinx
 BuildRequires:  python-mox
 BuildRequires:  python-keystoneclient
-BuildRequires:  python-django
+
+%if 0%{?rhel}<7 || 0%{?fedora} < 18
+Requires:   Django
+BuildRequires:   Django
+%else
+Requires:   python-django
+BuildRequires:   python-django
+%endif
  
-Requires:       python-django >= 1.4
 Requires:       python-keystoneclient
 
 %description
@@ -41,8 +47,6 @@ find . -name "django.po" -exec rm -f '{}' \;
 
 # generate html docs 
 PYTHONPATH=.:$PYTHONPATH sphinx-build docs html
-# remove the sphinx-build leftovers
-#rm -rf html/.{doctrees,buildinfo}
 
 
 %install
@@ -63,5 +67,8 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %{python_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
+* Mon Sep 24 2012 Matthias Runge <mrunge@redhat.com> - 1.0.2-2
+- also support f17, el6
+
 * Tue Sep 11 2012 Matthias Runge <mrunge@redhat.com> - 1.0.2-1
 - Initial package.
