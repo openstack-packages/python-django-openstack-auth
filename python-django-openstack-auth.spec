@@ -2,7 +2,7 @@
 
 Name:           python-django-openstack-auth
 Version:        1.0.6
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Django authentication backend for OpenStack Keystone 
 
 License:        BSD
@@ -18,6 +18,7 @@ BuildRequires:  python-sphinx
 %endif
 BuildRequires:  python-mox
 BuildRequires:  python-keystoneclient
+BuildRequires:  python-iso8601
 
 %if 0%{?rhel}<7 || 0%{?fedora} < 18
 %if 0%{?rhel}==6
@@ -91,6 +92,9 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %{python_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
+* Mon Feb 18 2013 Matthias Runge <mrunge@redhat.com> - 1.0.6-3
+- BR python-iso8601
+
 * Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.6-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
