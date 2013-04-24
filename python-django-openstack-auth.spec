@@ -51,6 +51,10 @@ rm -rf %{pypi_name}.egg-info
 # remove unnecessary .po files
 find . -name "django.po" -exec rm -f '{}' \;
 
+# patch sent upstream:
+# https://github.com/gabrielhurley/django_openstack_auth/pull/34
+echo "SECRET_KEY='badcafe'" >> openstack_auth/tests/settings.py
+
 
 %build
 %{__python} setup.py build
