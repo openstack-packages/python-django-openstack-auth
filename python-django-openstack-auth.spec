@@ -51,6 +51,7 @@ rm -rf %{pypi_name}.egg-info
 # remove unnecessary .po files
 find . -name "django.po" -exec rm -f '{}' \;
 
+sed -i 's/SECERT_KEY/SECRET_KEY/' openstack_auth/tests/settings.py
 
 %build
 %{__python} setup.py build
