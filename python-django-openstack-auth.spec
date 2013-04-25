@@ -1,7 +1,7 @@
 %global pypi_name django_openstack_auth
 
 Name:           python-django-openstack-auth
-Version:        1.0.8
+Version:        1.0.9
 Release:        1%{?dist}
 Summary:        Django authentication backend for OpenStack Keystone 
 
@@ -51,10 +51,6 @@ rm -rf %{pypi_name}.egg-info
 # remove unnecessary .po files
 find . -name "django.po" -exec rm -f '{}' \;
 
-# patch sent upstream:
-# https://github.com/gabrielhurley/django_openstack_auth/pull/34
-echo "SECRET_KEY='badcafe'" >> openstack_auth/tests/settings.py
-
 
 %build
 %{__python} setup.py build
@@ -96,6 +92,9 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %{python_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
+* Thu Apr 25 2013 Matthias Runge <mrunge@redhat.com> - 1.0.9-1
+- update to 1.0.9 with more Django-1.5 fixes
+
 * Wed Apr 24 2013 Matthias Runge <mrunge@redhat.com> - 1.0.8-1
 - update to 1.0.8 for Django-1.5 compat
 
