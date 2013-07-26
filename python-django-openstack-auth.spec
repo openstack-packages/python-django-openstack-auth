@@ -19,6 +19,7 @@ BuildRequires:  python-sphinx
 BuildRequires:  python-mox
 BuildRequires:  python-keystoneclient
 BuildRequires:  python-iso8601
+BuildRequires:  python-pbr
 
 %if 0%{?rhel}<7 || 0%{?fedora} < 18
 %if 0%{?rhel}==6
