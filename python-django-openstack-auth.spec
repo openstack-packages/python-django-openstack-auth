@@ -1,12 +1,12 @@
 %global pypi_name django_openstack_auth
 
 Name:           python-django-openstack-auth
-Version:        1.1.0
+Version:        1.1.1
 Release:        1%{?dist}
 Summary:        Django authentication backend for OpenStack Keystone 
 
 License:        BSD
-URL:            http://pypi.python.org/pypi/django_openstack_auth/1.0.3
+URL:            http://pypi.python.org/pypi/django_openstack_auth/
 Source0:        http://pypi.python.org/packages/source/d/%{pypi_name}/%{pypi_name}-%{version}.tar.gz
 BuildArch:      noarch
  
@@ -94,6 +94,9 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %{python_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
+* Tue Aug 13 2013 Matthias Runge <mrunge@redhat.com> - 1.1.1-1
+- update to stable version 1.1.1 (rhbz#991783)
+
 * Fri Jul 26 2013 Matthias Runge <mrunge@redhat.com> - 1.1.0-1
 - update to stable version 1.1.0 (rhbz#983007)
 
