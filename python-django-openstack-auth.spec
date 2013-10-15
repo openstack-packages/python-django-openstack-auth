@@ -1,7 +1,7 @@
 %global pypi_name django_openstack_auth
 
 Name:           python-django-openstack-auth
-Version:        1.1.2
+Version:        1.1.3
 Release:        1%{?dist}
 Summary:        Django authentication backend for OpenStack Keystone 
 
@@ -11,6 +11,7 @@ Source0:        http://pypi.python.org/packages/source/d/%{pypi_name}/%{pypi_nam
 BuildArch:      noarch
  
 BuildRequires:  python2-devel
+BuildRequires:  python-setuptools
 %if 0%{?rhel}==6
 BuildRequires:  python-sphinx10
 %else
@@ -21,6 +22,7 @@ BuildRequires:  python-keystoneclient
 BuildRequires:  python-iso8601
 BuildRequires:  python-pbr
 BuildRequires:  python-netaddr
+BuildRequires:  python-oslo-sphinx
 
 %if 0%{?rhel}<7 || 0%{?fedora} < 18
 %if 0%{?rhel}==6
@@ -48,21 +50,24 @@ Keystone V2 API.
 %prep
 %setup -q -n %{pypi_name}-%{version}
 # Remove bundled egg-info
-rm -rf %{pypi_name}.egg-info
+# rm -rf %{pypi_name}.egg-info
 
 # remove unnecessary .po files
 find . -name "django.po" -exec rm -f '{}' \;
 
-#sed -i 's/SECERT_KEY/SECRET_KEY/' openstack_auth/tests/settings.py
+# Remove the requirements file so that pbr hooks don't add it
+# to distutils requires_dist config
+rm -f {test-,}requirements.txt
+
 
 %build
 %{__python} setup.py build
 
-# generate html docs 
+# generate html docs
 %if 0%{?rhel}==6
-PYTHONPATH=.:$PYTHONPATH sphinx-1.0-build docs html
+PYTHONPATH=.:$PYTHONPATH sphinx-1.0-build doc/source html
 %else
-PYTHONPATH=.:$PYTHONPATH sphinx-build docs html
+PYTHONPATH=.:$PYTHONPATH sphinx-build doc/source html
 %endif
 
 %install
@@ -89,12 +94,16 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %{__python} setup.py test
 
 %files -f django.lang
-%doc README.rst LICENSE
+%doc LICENSE
 %dir %{python_sitelib}/openstack_auth
 %{python_sitelib}/openstack_auth/*.py*
+%{python_sitelib}/openstack_auth/locale/openstack_auth.pot
 %{python_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
+* Fri Oct 11 2013 Matthias Runge <mrunge@redhat.com> - 1.1.3-1
+- update to stable version 1.1.3 (rhbz#1014494)
+
 * Tue Sep 10 2013 Matthias Runge <mrunge@redhat.com> - 1.1.2-1
 - update to stable version 1.1.2 (rhbz#1006012)
 
