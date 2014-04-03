@@ -1,7 +1,7 @@
 %global pypi_name django_openstack_auth
 
 Name:           python-django-openstack-auth
-Version:        1.1.4
+Version:        1.1.5
 Release:        1%{?dist}
 Summary:        Django authentication backend for OpenStack Keystone 
 
@@ -59,6 +59,8 @@ find . -name "django.po" -exec rm -f '{}' \;
 # to distutils requires_dist config
 rm -f {test-,}requirements.txt
 
+# make doc build compatible with python-oslo-sphinx RPM
+sed -i 's/oslosphinx/oslo.sphinx/' doc/source/conf.py
 
 %build
 %{__python} setup.py build
@@ -101,6 +103,9 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %{python_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
 
 %changelog
+* Thu Apr 03 2014 Matthias Runge <mrunge@redhat.com> - 1.1.5-1
+- update to stable version 1.1.5 (rhbz#1082314)
+
 * Tue Jan 14 2014 Matthias Runge <mrunge@redhat.com> - 1.1.4-1
 - update to stable version 1.1.4 (rhbz#1051773) 
 
