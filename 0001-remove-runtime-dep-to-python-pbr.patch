@@ -1,0 +1,25 @@
+From 7cc6f2b773f70697c5525a0fd02c244088b1643a Mon Sep 17 00:00:00 2001
+From: Alan Pevec <apevec@redhat.com>
+Date: Wed, 7 May 2014 15:47:49 +0200
+Subject: [PATCH] remove runtime dep to python-pbr
+
+---
+ openstack_auth/__init__.py | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/openstack_auth/__init__.py b/openstack_auth/__init__.py
+index 67e4860..3995377 100644
+--- a/openstack_auth/__init__.py
++++ b/openstack_auth/__init__.py
+@@ -11,7 +11,4 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+-import pbr.version
+-
+-
+-__version__ = pbr.version.VersionInfo('django_openstack_auth').version_string()
++__version__ = "RPMVERSION"
+-- 
+1.9.0
+

@@ -2,12 +2,13 @@
 
 Name:           python-django-openstack-auth
 Version:        1.1.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Django authentication backend for OpenStack Keystone 
 
 License:        BSD
 URL:            http://pypi.python.org/pypi/django_openstack_auth/
 Source0:        http://pypi.python.org/packages/source/d/%{pypi_name}/%{pypi_name}-%{version}.tar.gz
+Patch0:         0001-remove-runtime-dep-to-python-pbr.patch
 BuildArch:      noarch
  
 BuildRequires:  python2-devel
@@ -49,11 +50,14 @@ Keystone V2 API.
 
 %prep
 %setup -q -n %{pypi_name}-%{version}
+%patch0 -p1
 # Remove bundled egg-info
 # rm -rf %{pypi_name}.egg-info
 
 # remove unnecessary .po files
 find . -name "django.po" -exec rm -f '{}' \;
+
+sed -i s/RPMVERSION/%{version}/ openstack_auth/__init__.py
 
 # Remove the requirements file so that pbr hooks don't add it
 # to distutils requires_dist config
