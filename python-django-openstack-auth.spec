@@ -8,7 +8,11 @@ Summary:        Django authentication backend for OpenStack Keystone
 License:        BSD
 URL:            http://pypi.python.org/pypi/django_openstack_auth/
 Source0:        http://pypi.python.org/packages/source/d/%{pypi_name}/%{pypi_name}-%{version}.tar.gz
-Patch0:         0001-remove-runtime-dep-to-python-pbr.patch
+
+#
+# patches_base=1.1.6
+#
+Patch0000:         0001-remove-runtime-dep-to-python-pbr.patch
 BuildArch:      noarch
  
 BuildRequires:  python2-devel
