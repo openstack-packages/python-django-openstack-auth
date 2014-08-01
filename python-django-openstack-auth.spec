@@ -13,7 +13,6 @@ Source0:        http://pypi.python.org/packages/source/d/%{pypi_name}/%{pypi_nam
 # patches_base=1.1.6
 #
 Patch0001: 0001-remove-runtime-dep-to-python-pbr.patch
-Patch0002: 0002-Adding-back-the-forms.Login-import.patch
 
 BuildArch:      noarch
  
@@ -55,10 +54,9 @@ The current version is designed to work with the
 Keystone V2 API.
 
 %prep
-%setup -q -n %{pypi_name}-%{version}
+%setup -q -n %{pypi_name}-%{upstream_version}
 
 %patch0001 -p1
-%patch0002 -p1
 
 # Remove bundled egg-info
 # rm -rf %{pypi_name}.egg-info
@@ -71,9 +69,6 @@ sed -i s/RPMVERSION/%{version}/ openstack_auth/__init__.py
 # Remove the requirements file so that pbr hooks don't add it
 # to distutils requires_dist config
 rm -f {test-,}requirements.txt
-
-# make doc build compatible with python-oslo-sphinx RPM
-sed -i 's/oslosphinx/oslo.sphinx/' doc/source/conf.py
 
 %build
 %{__python} setup.py build
@@ -113,7 +108,7 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %dir %{python_sitelib}/openstack_auth
 %{python_sitelib}/openstack_auth/*.py*
 %{python_sitelib}/openstack_auth/locale/openstack_auth.pot
-%{python_sitelib}/%{pypi_name}-%{version}-py?.?.egg-info
+%{python_sitelib}/%{pypi_name}-*.egg-info
 
 %changelog
 * Mon Jun 23 2014 Matthias Runge <mrunge@redhat.com> - 1.1.6-1
