@@ -1,8 +1,8 @@
 %global pypi_name django_openstack_auth
 
 Name:           python-django-openstack-auth
-Version:        1.1.6
-Release:        1%{?dist}
+Version:        XXX
+Release:        XXX{?dist}
 Summary:        Django authentication backend for OpenStack Keystone 
 
 License:        BSD
@@ -10,7 +10,7 @@ URL:            http://pypi.python.org/pypi/django_openstack_auth/
 Source0:        http://pypi.python.org/packages/source/d/%{pypi_name}/%{pypi_name}-%{version}.tar.gz
 
 #
-# patches_base=1.1.6
+# patches_base=1.1.7
 #
 Patch0001: 0001-remove-runtime-dep-to-python-pbr.patch
 
@@ -18,30 +18,17 @@ BuildArch:      noarch
  
 BuildRequires:  python2-devel
 BuildRequires:  python-setuptools
-%if 0%{?rhel}==6
-BuildRequires:  python-sphinx10
-%else
 BuildRequires:  python-sphinx
-%endif
 BuildRequires:  python-mox
 BuildRequires:  python-keystoneclient
 BuildRequires:  python-iso8601
 BuildRequires:  python-pbr
 BuildRequires:  python-netaddr
 BuildRequires:  python-oslo-sphinx
+BuildRequires:  python-babel
 
-%if 0%{?rhel}<7 || 0%{?fedora} < 18
-%if 0%{?rhel}==6
-Requires:   Django14
-BuildRequires: Django14
-%else
-Requires:   Django
-BuildRequires:   Django
-%endif
-%else
 Requires:   python-django
 BuildRequires:   python-django
-%endif
  
 Requires:       python-keystoneclient
 
@@ -61,9 +48,6 @@ Keystone V2 API.
 # Remove bundled egg-info
 # rm -rf %{pypi_name}.egg-info
 
-# remove unnecessary .po files
-find . -name "django.po" -exec rm -f '{}' \;
-
 sed -i s/RPMVERSION/%{version}/ openstack_auth/__init__.py
 
 # Remove the requirements file so that pbr hooks don't add it
@@ -73,15 +57,17 @@ rm -f {test-,}requirements.txt
 %build
 %{__python} setup.py build
 
+# compile message catalogs then remove unnecessary .po files
+%{__python} setup.py compile_catalog
+find . -name "django.po" -exec rm -f '{}' \;
+
 # generate html docs
-%if 0%{?rhel}==6
-PYTHONPATH=.:$PYTHONPATH sphinx-1.0-build doc/source html
-%else
 PYTHONPATH=.:$PYTHONPATH sphinx-build doc/source html
-%endif
 
 %install
 %{__python} setup.py install --skip-build --root %{buildroot}
+# setup.py doesn't copy the generated .mo files so do them seperatly
+rsync -r --include="*.mo" --include="*/" --exclude="*" openstack_auth %{buildroot}/lib
 
 %if 0%{?rhel}==6
 # Handling locale files
@@ -106,11 +92,31 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %files -f django.lang
 %doc LICENSE
 %dir %{python_sitelib}/openstack_auth
+%dir %{python_sitelib}/openstack_auth/locale
+%dir %{python_sitelib}/openstack_auth/locale/??/
+%dir %{python_sitelib}/openstack_auth/locale/??_??/
+%dir %{python_sitelib}/openstack_auth/locale/??/LC_MESSAGES
+%dir %{python_sitelib}/openstack_auth/locale/??_??/LC_MESSAGES
 %{python_sitelib}/openstack_auth/*.py*
 %{python_sitelib}/openstack_auth/locale/openstack_auth.pot
 %{python_sitelib}/%{pypi_name}-*.egg-info
 
 %changelog
+* Thu Nov 20 2014 Derek Higgins <derekh@redhat.com> - 1.1.7-2
+- compile message catalogs
+
+* Thu Nov 13 2014 Matthias Runge <mrunge@redhat.com> - 1.1.7-2
+- own locale dirs (rhbz#1163362)
+
+* Fri Sep 26 2014 Matthias Runge <mrunge@redhat.com> - 1.1.7-1
+- update to 1.1.7 (rhbz#1145024)
+
+* Thu Sep 11 2014 Matthias Runge <mrunge@redhat.com> - 1.1.6-3
+- spec cleanup
+
+* Mon Aug 25 2014 Matthias Runge <mrunge@redhat.com> - 1.1.6-2
+- bump version
+
 * Mon Jun 23 2014 Matthias Runge <mrunge@redhat.com> - 1.1.6-1
 - update to 1.1.6 (rhbz#1111877)
 
