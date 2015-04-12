@@ -68,7 +68,16 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 
 %files -f django.lang
 %license LICENSE
-%{python_sitelib}/openstack_auth
+%dir %{python_sitelib}/openstack_auth/
+%dir %{python_sitelib}/openstack_auth/locale
+%dir %{python_sitelib}/openstack_auth/locale/??/
+%dir %{python_sitelib}/openstack_auth/locale/??_??/
+%dir %{python_sitelib}/openstack_auth/locale/??/LC_MESSAGES
+%dir %{python_sitelib}/openstack_auth/locale/??_??/LC_MESSAGES
+%{python_sitelib}/openstack_auth/locale/openstack_auth.pot
+%{python_sitelib}/openstack_auth/*.py*
+%{python_sitelib}/openstack_auth/openstack/
+%{python_sitelib}/openstack_auth/plugin/
 %{python_sitelib}/%{pypi_name}-*.egg-info
 
 %changelog
