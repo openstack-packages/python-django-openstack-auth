@@ -29,6 +29,7 @@ Requires:   python-pbr
 Requires:   python-oslo-config >= 1.9.3
 Requires:   python-keystoneclient >= 1.1.0
 Requires:   python-six >= 1.9.0
+Requires:   python-oslo-policy >= 0.3.1
 
 %description
 Django OpenStack Auth is a pluggable Django authentication backend that
@@ -76,7 +77,6 @@ rm -rf %{buildroot}/%{python_sitelib}/openstack_auth/tests
 %dir %{python_sitelib}/openstack_auth/locale/??_??/LC_MESSAGES
 %{python_sitelib}/openstack_auth/locale/openstack_auth.pot
 %{python_sitelib}/openstack_auth/*.py*
-%{python_sitelib}/openstack_auth/openstack/
 %{python_sitelib}/openstack_auth/plugin/
 %{python_sitelib}/%{pypi_name}-*.egg-info
 
