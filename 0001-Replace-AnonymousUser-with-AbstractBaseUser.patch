@@ -1,0 +1,202 @@
+From 0a0a9319d76d1cae7549546aa3ea207d74526b35 Mon Sep 17 00:00:00 2001
+From: Matthias Runge <mrunge@redhat.com>
+Date: Thu, 26 Mar 2015 14:04:18 +0100
+Subject: [PATCH] Replace AnonymousUser with AbstractBaseUser
+
+Django-1.8 added _meta classes for User models,
+which aren't supported by AnonymousUsers.
+AbstractBaseUser honors admin users, thus changes in permissions required
+
+SimpleTest has been deprecated since Django-1.6 and
+was now removed.
+
+Unfortunately, this change drops Django-1.6 (and earlier) compatibility.
+
+Co-Authored-By: Lin Hua Cheng <os.lcheng@gmail.com>
+
+Partially Implements: blueprint django18
+Change-Id: Ie243fd2304421694023f579f49f8fa201e761ba3
+
+(cherry picked from commit a593a4459e1ea2aa2b7d78fb528ec7a6f19a5f4b)
+---
+ openstack_auth/__init__.py        |  2 ++
+ openstack_auth/tests/run_tests.py |  7 +++++--
+ openstack_auth/tests/settings.py  |  4 ++++
+ openstack_auth/user.py            | 28 ++++++++++++++++++++++++++--
+ tox.ini                           | 15 ++++++---------
+ 5 files changed, 43 insertions(+), 13 deletions(-)
+
+diff --git a/openstack_auth/__init__.py b/openstack_auth/__init__.py
+index 67e4860..ed31e6b 100644
+--- a/openstack_auth/__init__.py
++++ b/openstack_auth/__init__.py
+@@ -13,5 +13,7 @@
+ 
+ import pbr.version
+ 
++from openstack_auth.user import User  # noqa
++
+ 
+ __version__ = pbr.version.VersionInfo('django_openstack_auth').version_string()
+diff --git a/openstack_auth/tests/run_tests.py b/openstack_auth/tests/run_tests.py
+index 32ec848..b317967 100644
+--- a/openstack_auth/tests/run_tests.py
++++ b/openstack_auth/tests/run_tests.py
+@@ -20,7 +20,10 @@ import sys
+ os.environ['DJANGO_SETTINGS_MODULE'] = 'openstack_auth.tests.settings'
+ 
+ import django
+-from django.test import simple as test_simple
++if django.VERSION < (1, 8, 0):
++    from django.test.simple import DjangoTestSuiteRunner as test_runner
++else:
++    from django.test.runner import DiscoverRunner as test_runner
+ 
+ if hasattr(django, 'setup'):
+     django.setup()
+@@ -35,7 +38,7 @@ def run(*test_args):
+         "..",
+     )
+     sys.path.insert(0, parent)
+-    failures = test_simple.DjangoTestSuiteRunner().run_tests(test_args)
++    failures = test_runner().run_tests(test_args)
+     sys.exit(failures)
+ 
+ 
+diff --git a/openstack_auth/tests/settings.py b/openstack_auth/tests/settings.py
+index 753a02a..f97a854 100644
+--- a/openstack_auth/tests/settings.py
++++ b/openstack_auth/tests/settings.py
+@@ -35,6 +35,10 @@ MIDDLEWARE_CLASSES = [
+ 
+ AUTHENTICATION_BACKENDS = ['openstack_auth.backend.KeystoneBackend']
+ 
++# AUTH_USER_MODEL has to be in the form of
++# AUTH_USER_MODEL = 'myapp.MyUser'
++AUTH_USER_MODEL = 'openstack_auth.User'
++
+ OPENSTACK_KEYSTONE_URL = "http://localhost:5000/v3"
+ 
+ ROOT_URLCONF = 'openstack_auth.tests.urls'
+diff --git a/openstack_auth/user.py b/openstack_auth/user.py
+index 7e9a8ef..9c9c6bc 100644
+--- a/openstack_auth/user.py
++++ b/openstack_auth/user.py
+@@ -16,6 +16,7 @@ import logging
+ 
+ from django.conf import settings
+ from django.contrib.auth import models
++from django.db import models as dbmodels
+ from keystoneclient.common import cms as keystone_cms
+ from keystoneclient import exceptions as keystone_exceptions
+ 
+@@ -119,7 +120,7 @@ class Token(object):
+         self.serviceCatalog = auth_ref.service_catalog.get_data()
+ 
+ 
+-class User(models.AnonymousUser):
++class User(models.AbstractBaseUser, models.PermissionsMixin):
+     """A User class with some extra special sauce for Keystone.
+ 
+     In addition to the standard Django user attributes, this class also has
+@@ -187,13 +188,17 @@ class User(models.AnonymousUser):
+         Unscoped Keystone token.
+ 
+     """
++
++    USERNAME_FIELD = 'id'
++    id = dbmodels.CharField(max_length=240, primary_key=True)
++
+     def __init__(self, id=None, token=None, user=None, tenant_id=None,
+                  service_catalog=None, tenant_name=None, roles=None,
+                  authorized_tenants=None, endpoint=None, enabled=False,
+                  services_region=None, user_domain_id=None,
+                  user_domain_name=None, domain_id=None, domain_name=None,
+                  project_id=None, project_name=None,
+-                 is_federated=False, unscoped_token=None):
++                 is_federated=False, unscoped_token=None, password=None):
+         self.id = id
+         self.pk = id
+         self.token = token
+@@ -218,11 +223,14 @@ class User(models.AnonymousUser):
+         # Unscoped token is used for listing user's project that works
+         # for both federated and keystone user.
+         self.unscoped_token = unscoped_token
++        self.password = None
+ 
+         # List of variables to be deprecated.
+         self.tenant_id = self.project_id
+         self.tenant_name = self.project_name
+ 
++        self.USERNAME_FIELD = self.username
++
+     def __unicode__(self):
+         return self.username
+ 
+@@ -362,6 +370,22 @@ class User(models.AnonymousUser):
+                 return True
+         return False
+ 
++    # Override the default has_perm method. Default implementation allows
++    # active superusers to have all permissions. Our check is more complicated
++    # than that, service have to check if is available before a panel can be
++    # exposed. Removing the superuser check and delegate the check to the
++    # auth backend.
++    def has_perm(self, perm, obj=None):
++        """Returns True if the user has the specified permission.
++
++        This method queries all available auth backends, but returns
++        immediately if any backend returns True. Thus, a user who has
++        permission from a single auth backend is assumed to have permission
++        in general. If an object is provided, permissions for this specific
++        object are checked.
++        """
++        return models._user_has_perm(self, perm, obj)
++
+     # Override the default has_perms method. Allowing for more
+     # complex combinations of permissions.  Will check for logical AND of
+     # all top level permissions.  Will use logical OR for all first level
+diff --git a/tox.ini b/tox.ini
+index ec31817..2745e72 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -1,7 +1,7 @@
+ [tox]
+ minversion = 1.6
+ skipsdist = True
+-envlist = py27,py27dj14,py27dj15,py27dj16,pep8,py33,py34
++envlist = py27,py27dj17,py27dj18,pep8,py33,py34
+ 
+ [testenv]
+ usedevelop = True
+@@ -24,22 +24,19 @@ commands =
+     python -m coverage html --include='openstack_auth/*' --omit='openstack_auth/tests/*' -d 'reports'
+     python -m coverage xml --include='openstack_auth/*' --omit='openstack_auth/tests/*'
+ 
+-[testenv:py27dj16]
+-commands = pip install django>=1.6,<1.7
++[testenv:py27dj17]
++commands = pip install django>=1.7,<1.8
+            python openstack_auth/tests/run_tests.py {posargs}
+ 
+-[testenv:py27dj15]
+-commands = pip install django>=1.5,<1.6
+-           python openstack_auth/tests/run_tests.py {posargs}
+-
+-[testenv:py27dj14]
+-commands = pip install django>=1.4,<1.5
++[testenv:py27dj18]
++commands = pip install django>=1.8,<1.9
+            python openstack_auth/tests/run_tests.py {posargs}
+ 
+ [testenv:pep8]
+ setenv = DJANGO_SETTINGS_MODULE=openstack_auth.tests.settings
+ commands = flake8
+ 
++
+ [testenv:venv]
+ commands = {posargs}
+ 
+-- 
+2.4.3
+
