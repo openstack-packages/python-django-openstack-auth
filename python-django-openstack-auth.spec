@@ -1,16 +1,13 @@
 %global pypi_name django_openstack_auth
 
 Name:           python-django-openstack-auth
-Version:        1.1.9
-Release:        0.1%{?dist}
+Version:        XXX
+Release:        XXX
 Summary:        Django authentication backend for OpenStack Keystone
 
 License:        BSD
 URL:            http://pypi.python.org/pypi/django_openstack_auth/
 Source0:        http://tarballs.openstack.org/django_openstack_auth/django_openstack_auth-master.tar.gz
-
-# FIXME: https://review.openstack.org/#/c/167981/
-Patch001:       0001-Replace-AnonymousUser-with-AbstractBaseUser.patch
 
 BuildArch:      noarch
  
@@ -44,7 +41,6 @@ Keystone V2 API.
 
 %prep
 %setup -q -n %{pypi_name}-%{upstream_version}
-%patch001 -p1
 
 %build
 # compile message catalogs
