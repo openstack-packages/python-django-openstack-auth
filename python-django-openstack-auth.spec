@@ -75,7 +75,7 @@ rm -rf %{buildroot}/%{python2_sitelib}/openstack_auth/tests
 %dir %{python2_sitelib}/openstack_auth/locale/??_??/
 %dir %{python2_sitelib}/openstack_auth/locale/??/LC_MESSAGES
 %dir %{python2_sitelib}/openstack_auth/locale/??_??/LC_MESSAGES
-%{python2_sitelib}/openstack_auth/locale/openstack_auth.pot
+%{python2_sitelib}/openstack_auth/locale/django.pot
 %{python2_sitelib}/openstack_auth/*.py*
 %{python2_sitelib}/openstack_auth/plugin/
 %{python2_sitelib}/%{pypi_name}-*.egg-info
