@@ -1,5 +1,0 @@
-[gerrit]
-host=review.gerrithub.io
-port=29418
-project=openstack-packages/python-django-openstack-auth
-defaultbranch=rpm-master

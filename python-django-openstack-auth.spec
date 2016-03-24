@@ -1,13 +1,16 @@
 %global pypi_name django_openstack_auth
 
+
+%{!?upstream_version: %global upstream_version %{version}%{?milestone}}
+
 Name:           python-django-openstack-auth
-Version:        XXX
-Release:        XXX
+Version:        2.2.0
+Release:        1%{?dist}
 Summary:        Django authentication backend for OpenStack Keystone
 
 License:        BSD
 URL:            http://pypi.python.org/pypi/django_openstack_auth/
-Source0:        http://tarballs.openstack.org/django_openstack_auth/django_openstack_auth-master.tar.gz
+Source0:        http://tarballs.openstack.org/django_openstack_auth/django_openstack_auth-%{version}%{?milestone}.tar.gz
 
 BuildArch:      noarch
  
@@ -81,3 +84,5 @@ rm -rf %{buildroot}/%{python2_sitelib}/openstack_auth/tests
 %{python2_sitelib}/%{pypi_name}-*.egg-info
 
 %changelog
+* Thu Mar 24 2016 RDO <rdo-list@redhat.com> 2.2.0-1
+- 2.2.0 Rebuild for Mitaka 
